@@ -65,7 +65,7 @@ jobs:
         uses: azure/arm-deploy@v1
         with:
           subscriptionId: ${{ fromJson(secrets.AZURE_CREDENTIALS).subscriptionId }}
-          resourceGroupName: "first-function-app-resource-grp"
+          resourceGroupName: "today-friday_group"
           template: ./arm-template/template.json  # path to your ARM template
           parameters: ./arm-template/parameters.json  # optional: parameter file path
           deploymentName: armDeploy-${{ github.run_number }}-${{ github.sha }}
@@ -74,7 +74,7 @@ jobs:
         uses: Azure/functions-action@v1
         id: fa
         with:
-          app-name: 'today-friday-new-at-first'
+          app-name: 'today-friday-second-at-original'
           slot-name: 'Production'
           package: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
           
