@@ -65,7 +65,7 @@ jobs:
         uses: azure/arm-deploy@v1
         with:
           subscriptionId: ${{ fromJson(secrets.AZURE_CREDENTIALS).subscriptionId }}
-          resourceGroupName: "for-friday-today"
+          resourceGroupName: "first-function-app-resource-grp"
           template: ./arm-template/template.json  # path to your ARM template
           parameters: ./arm-template/parameters.json  # optional: parameter file path
           deploymentName: armDeploy-${{ github.run_number }}-${{ github.sha }}
