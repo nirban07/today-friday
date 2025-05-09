@@ -3,7 +3,7 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "sites_today_friday_name": {
-            "defaultValue": "today-friday-new",
+            "defaultValue": "today-friday-new-at-first",
             "type": "String"
         },
         "serverfarms_ASP_todayfridaygroup_b5e8_externalid": {
