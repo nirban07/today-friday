@@ -68,7 +68,7 @@ jobs:
           resourceGroupName: "today-friday_group"
           template: ./arm-template/template.json  # path to your ARM template
           parameters: ./arm-template/parameters.json  # optional: parameter file path
-          deploymentName: armDeploy-${{ github.run_number }}
+          deploymentName: armDeploy-${{ github.run_number }}-${{ github.sha }}
 
       - name: 'Run Azure Functions Action'
         uses: Azure/functions-action@v1
