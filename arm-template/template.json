@@ -2,13 +2,6 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-      "functionAppName": {
-        "type": "string",
-        "defaultValue": "[concat('func-', uniqueString(resourceGroup().id))]",
-        "metadata": {
-          "description": "The name of the Azure Function app."
-        }
-      },
       "storageAccountType": {
         "type": "string",
         "defaultValue": "Standard_LRS",
@@ -43,9 +36,10 @@
       }
     },
     "variables": {
-      "hostingPlanName": "[parameters('functionAppName')]",
-      "applicationInsightsName": "[parameters('functionAppName')]",
-      "storageAccountName": "[format('{0}azfunctions', uniqueString(resourceGroup().id))]"
+        "functionAppName": "[format('func-{0}', uniqueString(resourceGroup().id))]",
+        "hostingPlanName": "[variables('functionAppName')]",
+        "applicationInsightsName": "[variables('functionAppName')]",
+        "storageAccountName": "[format('{0}azfunctions', uniqueString(resourceGroup().id))]"
     },
     "resources": [
       {
@@ -89,7 +83,7 @@
       {
         "type": "Microsoft.Web/sites",
         "apiVersion": "2022-03-01",
-        "name": "[parameters('functionAppName')]",
+        "name": "[variables('functionAppName')]",
         "location": "[parameters('location')]",
         "kind": "functionapp",
         "properties": {
@@ -110,7 +104,7 @@
               },
               {
                 "name": "WEBSITE_CONTENTSHARE",
-                "value": "[toLower(parameters('functionAppName'))]"
+                "value": "[toLower(variables('functionAppName'))]"
               },
               {
                 "name": "FUNCTIONS_EXTENSION_VERSION",
