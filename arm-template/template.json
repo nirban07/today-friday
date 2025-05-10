@@ -1,336 +1,141 @@
 {
-  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "contentVersion": "1.0.0.0",
-  "parameters": {
-    "sites_today_friday_name": {
-      "defaultValue": "today-friday",
-      "type": "String"
-    },
-    "serverfarms_ASP_todayfridaygroup_b5e8_externalid": {
-      "defaultValue": "/subscriptions/621cec32-fab8-4552-ab21-d48ea699fe04/resourceGroups/today-friday_group/providers/Microsoft.Web/serverfarms/ASP-todayfridaygroup-b5e8",
-      "type": "String"
-    },
-    "appInsightsName": {
-      "defaultValue": "today-friday",
-      "type": "String"
-    }
-  },
-  "variables": {},
-  "resources": [
-    {
-      "type": "Microsoft.Web/sites",
-      "apiVersion": "2024-04-01",
-      "name": "[parameters('sites_today_friday_name')]",
-      "location": "Canada Central",
-      "tags": {
-        "hidden-link: /app-insights-resource-id": "/subscriptions/621cec32-fab8-4552-ab21-d48ea699fe04/resourceGroups/today-friday_group/providers/microsoft.insights/components/today-friday",
-        "hidden-link: /app-insights-instrumentation-key": "a6890239-44ed-4ddf-8774-d912a679ac94",
-        "hidden-link: /app-insights-conn-string": "InstrumentationKey=a6890239-44ed-4ddf-8774-d912a679ac94;IngestionEndpoint=https://canadacentral-1.in.applicationinsights.azure.com/;LiveEndpoint=https://canadacentral.livediagnostics.monitor.azure.com/;ApplicationId=9d91ac13-a3cf-49fe-8766-50ba7ac15f23"
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+      "functionAppName": {
+        "type": "string",
+        "defaultValue": "[format('func-{0}', uniqueString(resourceGroup().id))]",
+        "metadata": {
+          "description": "The name of the Azure Function app."
+        }
       },
-      "kind": "functionapp",
-      "identity": {
-        "type": "SystemAssigned"
-      },
-      "properties": {
-        "enabled": true,
-        "hostNameSslStates": [
-          {
-            "name": "[concat(parameters('sites_today_friday_name'), '.azurewebsites.net')]",
-            "sslState": "Disabled",
-            "hostType": "Standard"
-          },
-          {
-            "name": "[concat(parameters('sites_today_friday_name'), '.scm.azurewebsites.net')]",
-            "sslState": "Disabled",
-            "hostType": "Repository"
-          }
+      "storageAccountType": {
+        "type": "string",
+        "defaultValue": "Standard_LRS",
+        "allowedValues": [
+          "Standard_LRS",
+          "Standard_GRS",
+          "Standard_RAGRS"
         ],
-        "serverFarmId": "[parameters('serverfarms_ASP_todayfridaygroup_b5e8_externalid')]",
-        "reserved": false,
-        "isXenon": false,
-        "hyperV": false,
-        "dnsConfiguration": {},
-        "vnetRouteAllEnabled": false,
-        "vnetImagePullEnabled": false,
-        "vnetContentShareEnabled": false,
-        "siteConfig": {
-          "appSettings": [
-            {
-              "name": "WEBSITE_RUN_FROM_PACKAGE",
-              "value": "1"
-            },
-            {
-              "name": "FUNCTIONS_WORKER_RUNTIME",
-              "value": "node"
-            },
-            {
-              "name": "FUNCTIONS_EXTENSION_VERSION",
-              "value": "~4"
-            },
-            {
-              "name": "APPLICATIONINSIGHTS_CONNECTION_STRING",
-              "value": "[reference(resourceId('microsoft.insights/components', parameters('appInsightsName')), '2020-02-02').ConnectionString]"
-            },
-            {
-              "name": "WEBSITE_NODE_DEFAULT_VERSION",
-              "value": "~20"
-            }
-          ],
-          "numberOfWorkers": 1,
-          "acrUseManagedIdentityCreds": false,
-          "alwaysOn": false,
-          "http20Enabled": false,
-          "functionAppScaleLimit": 200,
-          "minimumElasticInstanceCount": 0
+        "metadata": {
+          "description": "Storage Account type"
+        }
+      },
+      "location": {
+        "type": "string",
+        "defaultValue": "[resourceGroup().location]",
+        "metadata": {
+          "description": "Location for all resources."
+        }
+      },
+      "functionWorkerRuntime": {
+        "type": "string",
+        "defaultValue": "node",
+        "allowedValues": [
+          "dotnet",
+          "node",
+          "python",
+          "java"
+        ],
+        "metadata": {
+          "description": "The language worker runtime to load in the function app."
+        }
+      }
+    },
+    "variables": {
+      "hostingPlanName": "[parameters('functionAppName')]",
+      "applicationInsightsName": "[parameters('functionAppName')]",
+      "storageAccountName": "[format('{0}azfunctions', uniqueString(resourceGroup().id))]"
+    },
+    "resources": [
+      {
+        "type": "Microsoft.Storage/storageAccounts",
+        "apiVersion": "2022-05-01",
+        "name": "[variables('storageAccountName')]",
+        "location": "[parameters('location')]",
+        "sku": {
+          "name": "[parameters('storageAccountType')]"
         },
-        "scmSiteAlsoStopped": false,
-        "clientAffinityEnabled": false,
-        "clientCertEnabled": false,
-        "clientCertMode": "Required",
-        "hostNamesDisabled": false,
-        "ipMode": "IPv4",
-        "vnetBackupRestoreEnabled": false,
-        "customDomainVerificationId": "8F1B65CE016F939D60A6484F64C341CB9E1500D162816F4F84097483BE5D413E",
-        "containerSize": 1536,
-        "dailyMemoryTimeQuota": 0,
-        "httpsOnly": true,
-        "endToEndEncryptionEnabled": false,
-        "redundancyMode": "None",
-        "publicNetworkAccess": "Enabled",
-        "storageAccountRequired": false,
-        "keyVaultReferenceIdentity": "SystemAssigned"
-      }
-    },
-    {
-      "type": "Microsoft.Web/sites/basicPublishingCredentialsPolicies",
-      "apiVersion": "2024-04-01",
-      "name": "[concat(parameters('sites_today_friday_name'), '/ftp')]",
-      "location": "Canada Central",
-      "dependsOn": [
-        "[resourceId('Microsoft.Web/sites', parameters('sites_today_friday_name'))]"
-      ],
-      "tags": {
-        "hidden-link: /app-insights-resource-id": "/subscriptions/621cec32-fab8-4552-ab21-d48ea699fe04/resourceGroups/today-friday_group/providers/microsoft.insights/components/today-friday",
-        "hidden-link: /app-insights-instrumentation-key": "a6890239-44ed-4ddf-8774-d912a679ac94",
-        "hidden-link: /app-insights-conn-string": "InstrumentationKey=a6890239-44ed-4ddf-8774-d912a679ac94;IngestionEndpoint=https://canadacentral-1.in.applicationinsights.azure.com/;LiveEndpoint=https://canadacentral.livediagnostics.monitor.azure.com/;ApplicationId=9d91ac13-a3cf-49fe-8766-50ba7ac15f23"
+        "kind": "Storage"
       },
-      "properties": {
-        "allow": false
-      }
-    },
-    {
-      "type": "Microsoft.Web/sites/basicPublishingCredentialsPolicies",
-      "apiVersion": "2024-04-01",
-      "name": "[concat(parameters('sites_today_friday_name'), '/scm')]",
-      "location": "Canada Central",
-      "dependsOn": [
-        "[resourceId('Microsoft.Web/sites', parameters('sites_today_friday_name'))]"
-      ],
-      "tags": {
-        "hidden-link: /app-insights-resource-id": "/subscriptions/621cec32-fab8-4552-ab21-d48ea699fe04/resourceGroups/today-friday_group/providers/microsoft.insights/components/today-friday",
-        "hidden-link: /app-insights-instrumentation-key": "a6890239-44ed-4ddf-8774-d912a679ac94",
-        "hidden-link: /app-insights-conn-string": "InstrumentationKey=a6890239-44ed-4ddf-8774-d912a679ac94;IngestionEndpoint=https://canadacentral-1.in.applicationinsights.azure.com/;LiveEndpoint=https://canadacentral.livediagnostics.monitor.azure.com/;ApplicationId=9d91ac13-a3cf-49fe-8766-50ba7ac15f23"
+      {
+        "type": "Microsoft.Web/serverfarms",
+        "apiVersion": "2022-03-01",
+        "name": "[variables('hostingPlanName')]",
+        "location": "[parameters('location')]",
+        "sku": {
+          "name": "Y1",
+          "tier": "Dynamic",
+          "size": "Y1",
+          "family": "Y"
+        },
+        "properties": {
+          "computeMode": "Dynamic"
+        }
       },
-      "properties": {
-        "allow": false
-      }
-    },
-    {
-      "type": "Microsoft.Web/sites/config",
-      "apiVersion": "2024-04-01",
-      "name": "[concat(parameters('sites_today_friday_name'), '/web')]",
-      "location": "Canada Central",
-      "dependsOn": [
-        "[resourceId('Microsoft.Web/sites', parameters('sites_today_friday_name'))]"
-      ],
-      "tags": {
-        "hidden-link: /app-insights-resource-id": "/subscriptions/621cec32-fab8-4552-ab21-d48ea699fe04/resourceGroups/today-friday_group/providers/microsoft.insights/components/today-friday",
-        "hidden-link: /app-insights-instrumentation-key": "a6890239-44ed-4ddf-8774-d912a679ac94",
-        "hidden-link: /app-insights-conn-string": "InstrumentationKey=a6890239-44ed-4ddf-8774-d912a679ac94;IngestionEndpoint=https://canadacentral-1.in.applicationinsights.azure.com/;LiveEndpoint=https://canadacentral.livediagnostics.monitor.azure.com/;ApplicationId=9d91ac13-a3cf-49fe-8766-50ba7ac15f23"
+      {
+        "type": "Microsoft.Insights/components",
+        "apiVersion": "2020-02-02",
+        "name": "[variables('applicationInsightsName')]",
+        "location": "[parameters('location')]",
+        "tags": {
+          "[format('hidden-link:{0}', resourceId('Microsoft.Web/sites', variables('applicationInsightsName')))]": "Resource"
+        },
+        "properties": {
+          "Application_Type": "web"
+        },
+        "kind": "web"
       },
-      "properties": {
-        "numberOfWorkers": 1,
-        "defaultDocuments": [
-          "Default.htm",
-          "Default.html",
-          "Default.asp",
-          "index.htm",
-          "index.html",
-          "iisstart.htm",
-          "default.aspx",
-          "index.php"
-        ],
-        "netFrameworkVersion": "v6.0",
-        "requestTracingEnabled": false,
-        "remoteDebuggingEnabled": false,
-        "httpLoggingEnabled": false,
-        "acrUseManagedIdentityCreds": false,
-        "logsDirectorySizeLimit": 35,
-        "detailedErrorLoggingEnabled": false,
-        "publishingUsername": "REDACTED",
-        "scmType": "GitHubAction",
-        "use32BitWorkerProcess": true,
-        "webSocketsEnabled": false,
-        "alwaysOn": false,
-        "managedPipelineMode": "Integrated",
-        "virtualApplications": [
-          {
-            "virtualPath": "/",
-            "physicalPath": "site\\wwwroot",
-            "preloadEnabled": false
+      {
+        "type": "Microsoft.Web/sites",
+        "apiVersion": "2022-03-01",
+        "name": "[parameters('functionAppName')]",
+        "location": "[parameters('location')]",
+        "kind": "functionapp",
+        "properties": {
+          "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]",
+          "siteConfig": {
+            "appSettings": [
+              {
+                "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
+                "value": "[reference(resourceId('Microsoft.Insights/components', variables('applicationInsightsName')), '2020-02-02').InstrumentationKey]"
+              },
+              {
+                "name": "AzureWebJobsStorage",
+                "value": "[format('DefaultEndpointsProtocol=https;AccountName={0};EndpointSuffix={1};AccountKey={2}', variables('storageAccountName'), environment().suffixes.storage, listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2021-09-01').keys[0].value)]"
+              },
+              {
+                "name": "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING",
+                "value": "[format('DefaultEndpointsProtocol=https;AccountName={0};EndpointSuffix={1};AccountKey={2}', variables('storageAccountName'), environment().suffixes.storage, listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2021-09-01').keys[0].value)]"
+              },
+              {
+                "name": "WEBSITE_CONTENTSHARE",
+                "value": "[toLower(parameters('functionAppName'))]"
+              },
+              {
+                "name": "FUNCTIONS_EXTENSION_VERSION",
+                "value": "~4"
+              },
+              {
+                "name": "FUNCTIONS_WORKER_RUNTIME",
+                "value": "[parameters('functionWorkerRuntime')]"
+              },
+              {
+                "name": "WEBSITE_NODE_DEFAULT_VERSION",
+                "value": "~14"
+              },
+              {
+                "name": "WEBSITE_RUN_FROM_PACKAGE",
+                "value": "1"
+              }
+            ]
           }
-        ],
-        "loadBalancing": "LeastRequests",
-        "experiments": {
-          "rampUpRules": []
         },
-        "autoHealEnabled": false,
-        "vnetRouteAllEnabled": false,
-        "vnetPrivatePortsCount": 0,
-        "publicNetworkAccess": "Enabled",
-        "cors": {
-          "allowedOrigins": ["https://portal.azure.com"],
-          "supportCredentials": false
-        },
-        "localMySqlEnabled": false,
-        "managedServiceIdentityId": 118630,
-        "ipSecurityRestrictions": [
-          {
-            "ipAddress": "Any",
-            "action": "Allow",
-            "priority": 2147483647,
-            "name": "Allow all",
-            "description": "Allow all access"
-          }
-        ],
-        "scmIpSecurityRestrictions": [
-          {
-            "ipAddress": "Any",
-            "action": "Allow",
-            "priority": 2147483647,
-            "name": "Allow all",
-            "description": "Allow all access"
-          }
-        ],
-        "scmIpSecurityRestrictionsUseMain": false,
-        "http20Enabled": false,
-        "minTlsVersion": "1.2",
-        "scmMinTlsVersion": "1.2",
-        "ftpsState": "FtpsOnly",
-        "preWarmedInstanceCount": 0,
-        "functionAppScaleLimit": 200,
-        "functionsRuntimeScaleMonitoringEnabled": false,
-        "minimumElasticInstanceCount": 0,
-        "azureStorageAccounts": {}
+        "dependsOn": [
+          "[resourceId('Microsoft.Insights/components', variables('applicationInsightsName'))]",
+          "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]",
+          "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
+        ]
       }
-    },
-    {
-      "type": "Microsoft.Web/sites/deployments",
-      "apiVersion": "2024-04-01",
-      "name": "[concat(parameters('sites_today_friday_name'), '/3942562e525f4679991a9b94d9d3bf2c')]",
-      "location": "Canada Central",
-      "dependsOn": [
-        "[resourceId('Microsoft.Web/sites', parameters('sites_today_friday_name'))]"
-      ],
-      "properties": {
-        "status": 4,
-        "author_email": "N/A",
-        "author": "N/A",
-        "deployer": "GITHUB_ZIP_DEPLOY_FUNCTIONS_V1",
-        "message": "{\"type\":\"deployment\",\"sha\":\"6dec876b752315230d0f8ba94819efd899ca83f4\",\"repoName\":\"nirban07/today-friday\",\"actor\":\"nirban07\",\"slotName\":\"production\"}",
-        "start_time": "2025-05-09T09:19:57.4904151Z",
-        "end_time": "2025-05-09T09:19:58.0373175Z",
-        "active": true
-      }
-    },
-    {
-      "type": "Microsoft.Web/sites/deployments",
-      "apiVersion": "2024-04-01",
-      "name": "[concat(parameters('sites_today_friday_name'), '/cce65fa7a68b4dfdbe248e66a8703f5d')]",
-      "location": "Canada Central",
-      "dependsOn": [
-        "[resourceId('Microsoft.Web/sites', parameters('sites_today_friday_name'))]"
-      ],
-      "properties": {
-        "status": 4,
-        "author_email": "N/A",
-        "author": "N/A",
-        "deployer": "GITHUB_ZIP_DEPLOY_FUNCTIONS_V1",
-        "message": "{\"type\":\"deployment\",\"sha\":\"293da25049057ea58dd6b075c2fdbd40b52dc59d\",\"repoName\":\"nirban07/today-friday\",\"actor\":\"nirban07\",\"slotName\":\"production\"}",
-        "start_time": "2025-05-09T09:02:11.1025135Z",
-        "end_time": "2025-05-09T09:02:11.6029188Z",
-        "active": false
-      }
-    },
-    {
-      "type": "Microsoft.Web/sites/deployments",
-      "apiVersion": "2024-04-01",
-      "name": "[concat(parameters('sites_today_friday_name'), '/d1e23464c7df44b38bd742b7568be765')]",
-      "location": "Canada Central",
-      "dependsOn": [
-        "[resourceId('Microsoft.Web/sites', parameters('sites_today_friday_name'))]"
-      ],
-      "properties": {
-        "status": 4,
-        "author_email": "N/A",
-        "author": "N/A",
-        "deployer": "GITHUB_ZIP_DEPLOY_FUNCTIONS_V1",
-        "message": "{\"type\":\"deployment\",\"sha\":\"56c370d2be115bb4bbe200276b0477314cb364a6\",\"repoName\":\"nirban07/today-friday\",\"actor\":\"nirban07\",\"slotName\":\"production\"}",
-        "start_time": "2025-05-09T08:56:17.1985862Z",
-        "end_time": "2025-05-09T08:56:17.6829675Z",
-        "active": false
-      }
-    },
-    {
-      "type": "Microsoft.Web/sites/functions",
-      "apiVersion": "2024-04-01",
-      "name": "[concat(parameters('sites_today_friday_name'), '/', parameters('sites_today_friday_name'), '-func-name')]",
-      "location": "Canada Central",
-      "dependsOn": [
-        "[resourceId('Microsoft.Web/sites', parameters('sites_today_friday_name'))]"
-      ],
-      "properties": {
-        "script_href": "https://today-friday.azurewebsites.net/admin/vfs/site/wwwroot/today-friday-func-name.js",
-        "test_data_href": "https://today-friday.azurewebsites.net/admin/vfs/data/Functions/sampledata/today-friday-func-name.dat",
-        "href": "https://today-friday.azurewebsites.net/admin/functions/today-friday-func-name",
-        "config": {
-          "name": "today-friday-func-name",
-          "entryPoint": "",
-          "scriptFile": "today-friday-func-name.js",
-          "language": "node",
-          "functionDirectory": "C:\\home\\site\\wwwroot\\src\\functions",
-          "bindings": [
-            {
-              "methods": ["POST"],
-              "authLevel": "anonymous",
-              "type": "httpTrigger",
-              "name": "httpTrigger13c23c2cf5",
-              "direction": "in"
-            },
-            {
-              "type": "http",
-              "name": "$return",
-              "direction": "out"
-            }
-          ]
-        },
-        "invoke_url_template": "https://today-friday.azurewebsites.net/api/today-friday-func-name",
-        "language": "node",
-        "isDisabled": false
-      }
-    },
-    {
-      "type": "Microsoft.Web/sites/hostNameBindings",
-      "apiVersion": "2024-04-01",
-      "name": "[concat(parameters('sites_today_friday_name'), '/', parameters('sites_today_friday_name'), '.azurewebsites.net')]",
-      "location": "Canada Central",
-      "dependsOn": [
-        "[resourceId('Microsoft.Web/sites', parameters('sites_today_friday_name'))]"
-      ],
-      "properties": {
-        "siteName": "today-friday",
-        "hostNameType": "Verified"
-      }
-    }
-  ]
-}
+    ]
+  }
