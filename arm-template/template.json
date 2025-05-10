@@ -14,6 +14,7 @@
             "defaultValue": "today-friday",
             "type": "String"
         },
+    },
     "variables": {},
     "resources": [
         {
