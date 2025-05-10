@@ -51,7 +51,7 @@
         {
             "type": "Microsoft.Authorization/roleAssignments",
             "apiVersion": "2022-04-01",
-            "name": "[guid(resourceGroup().id, parameters'functionAppName'), 'contributor-role')]",
+            "name": "[guid(resourceGroup().id, parameters('functionAppName'), 'contributor-role')]",
             "properties": {
               "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]", // Contributor Role ID
               "principalId": "[reference(resourceId('Microsoft.Web/sites', parameters('functionAppName')), '2022-03-01', 'Full').identity.principalId]" // Replace with user/service principal/managed identity objectId
