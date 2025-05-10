@@ -48,17 +48,17 @@
         "storageAccountName": "[format('{0}azfunctions', uniqueString(resourceGroup().id))]"
     },
     "resources": [
-        {
-            "type": "Microsoft.Authorization/roleAssignments",
-            "apiVersion": "2022-04-01",
-            "name": "[guid(resourceGroup().id, parameters('functionAppName'), 'contributor-role')]",
-            "properties": {
-              "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]", // Contributor Role ID
-              "principalId": "[reference(resourceId('Microsoft.Web/sites', parameters('functionAppName')), '2022-03-01', 'Full').identity.principalId]" // Replace with user/service principal/managed identity objectId
-            },
-            "dependsOn": [
-              "[resourceId('Microsoft.Web/sites', parameters('functionAppName'))]"
-            ]
+        // {
+        //     "type": "Microsoft.Authorization/roleAssignments",
+        //     "apiVersion": "2022-04-01",
+        //     "name": "[guid(resourceGroup().id, parameters('functionAppName'), 'contributor-role')]",
+        //     "properties": {
+        //       "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]", // Contributor Role ID
+        //       "principalId": "[reference(resourceId('Microsoft.Web/sites', parameters('functionAppName')), '2022-03-01', 'Full').identity.principalId]" // Replace with user/service principal/managed identity objectId
+        //     },
+        //     "dependsOn": [
+        //       "[resourceId('Microsoft.Web/sites', parameters('functionAppName'))]"
+        //     ]
         },
       {
         "type": "Microsoft.Storage/storageAccounts",
@@ -142,6 +142,10 @@
               {
                 "name": "WEBSITE_RUN_FROM_PACKAGE",
                 "value": "1"
+              },
+              {
+                "name": "AZURE_SUBSCRIPTION_ID",
+                "value": "621cec32-fab8-4552-ab21-d48ea699fe04"
               }
             ]
           }
