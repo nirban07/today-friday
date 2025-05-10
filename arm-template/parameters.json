@@ -3,16 +3,16 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "functionAppName": {
-            "value": "null"
+            "value": "[format('func-{0}', uniqueString(resourceGroup().id))]"
         },
         "storageAccountType": {
-            "value": "null"
+            "value": "Standard_LRS"
         },
         "location": {
-        "value": "null"
+        "value": "[resourceGroup().location]"
         },
         "functionWorkerRuntime": {
-            "value": "null"
+            "value": "node"
         }
     }
 }
