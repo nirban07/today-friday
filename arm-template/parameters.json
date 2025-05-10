@@ -8,9 +8,6 @@
         "storageAccountType": {
             "value": "Standard_LRS"
         },
-        "location": {
-        "value": "[resourceGroup().location]"
-        },
         "functionWorkerRuntime": {
             "value": "node"
         }
